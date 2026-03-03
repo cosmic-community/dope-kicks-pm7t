@@ -27,10 +27,12 @@ export default function Footer() {
               Quick Links
             </h3>
             <ul className="space-y-3">
+              {/* Changed: Added Contact link */}
               {[
                 { href: '/products', label: 'All Products' },
                 { href: '/categories', label: 'Categories' },
-                { href: '/reviews', label: 'Reviews' }
+                { href: '/reviews', label: 'Reviews' },
+                { href: '/contact', label: 'Contact Us' },
               ].map((link) => (
                 <li key={link.href}>
                   <Link

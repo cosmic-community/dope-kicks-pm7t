@@ -8,7 +8,8 @@ const navLinks = [
   { href: '/', label: 'Home' },
   { href: '/products', label: 'Products' },
   { href: '/categories', label: 'Categories' },
-  { href: '/reviews', label: 'Reviews' }
+  { href: '/reviews', label: 'Reviews' },
+  { href: '/contact', label: 'Contact' }, // Changed: Added Contact nav link
 ]
 
 export default function Header() {
