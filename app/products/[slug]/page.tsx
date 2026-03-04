@@ -65,6 +65,18 @@ function StarRating({ rating }: { rating: number }) {
   )
 }
 
+// Changed: Helper to extract numeric rating from select-dropdown object or plain number
+function getRatingValue(rating: unknown): number {
+  if (rating === null || rating === undefined) return 0
+  if (typeof rating === 'number') return rating
+  if (typeof rating === 'string') return parseInt(rating, 10) || 0
+  if (typeof rating === 'object' && rating !== null) {
+    if ('value' in rating) return parseInt(String((rating as { value: unknown }).value), 10) || 0
+    if ('key' in rating) return parseInt(String((rating as { key: unknown }).key), 10) || 0
+  }
+  return 0
+}
+
 export default async function ProductDetailPage({ params }: PageProps) {
   const { slug } = await params
   const product = await getProductBySlug(slug)
@@ -82,10 +94,11 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const comparePrice = product.metadata?.compare_at_price
   const isOnSale = comparePrice && price && comparePrice > price
 
+  // Changed: use getRatingValue to properly extract numeric rating from select-dropdown objects
   const avgRating =
     reviews.length > 0
       ? Math.round(
-          reviews.reduce((sum, r) => sum + (r.metadata?.rating || 0), 0) /
+          reviews.reduce((sum, r) => sum + getRatingValue(r.metadata?.rating), 0) /
             reviews.length
         )
       : 0
