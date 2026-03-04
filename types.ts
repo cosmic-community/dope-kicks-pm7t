@@ -14,6 +14,9 @@ export interface CosmicImage {
   imgix_url: string
 }
 
+// Also export as CosmicMedia for compatibility with types/index.ts consumers
+export type CosmicMedia = CosmicImage
+
 export interface Category extends CosmicObject {
   type: 'categories'
   metadata: {
@@ -21,6 +24,13 @@ export interface Category extends CosmicObject {
     description?: string
     cover_image?: CosmicImage
   }
+}
+
+// Changed: Added CategoryMetadata for compatibility with types/index.ts consumers
+export interface CategoryMetadata {
+  name?: string
+  description?: string
+  cover_image?: CosmicMedia
 }
 
 export type InventoryStatus = 'In Stock' | 'Low Stock' | 'Out of Stock' | 'Pre-Order' | string
@@ -39,6 +49,18 @@ export interface Product extends CosmicObject {
   }
 }
 
+// Changed: Added ProductMetadata for compatibility with types/index.ts consumers
+export interface ProductMetadata {
+  name?: string
+  description?: string
+  price?: number
+  compare_at_price?: number
+  featured_image?: CosmicMedia
+  gallery?: CosmicMedia[]
+  inventory_status?: string | { key: string; value: string }
+  category?: Category
+}
+
 export interface Review extends CosmicObject {
   type: 'reviews'
   metadata: {
@@ -47,6 +69,24 @@ export interface Review extends CosmicObject {
     review_text?: string
     product?: Product
   }
+}
+
+// Changed: Added ReviewMetadata for compatibility with types/index.ts consumers
+export interface ReviewMetadata {
+  reviewer_name?: string
+  rating?: number | string | { key: string; value: string }
+  review_text?: string
+  product?: Product
+}
+
+// Changed: Added CartItem interface (was only in types/index.ts)
+export interface CartItem {
+  productId: string
+  slug: string
+  name: string
+  price: number
+  imageUrl: string
+  quantity: number
 }
 
 export function getMetafieldValue(field: unknown): string {

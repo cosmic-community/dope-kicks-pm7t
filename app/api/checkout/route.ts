@@ -35,9 +35,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const stripe = new Stripe(stripeSecretKey, {
-      apiVersion: '2025-05-28.basil',
-    })
+    // Changed: Removed explicit apiVersion to use the SDK default and avoid TS2322
+    const stripe = new Stripe(stripeSecretKey)
 
     const body: unknown = await request.json()
 

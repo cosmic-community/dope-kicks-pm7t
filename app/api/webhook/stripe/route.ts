@@ -11,9 +11,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Configuration error' }, { status: 500 })
   }
 
-  const stripe = new Stripe(stripeSecretKey, {
-    apiVersion: '2025-05-28.basil',
-  })
+  // Changed: Removed explicit apiVersion to use the SDK default and avoid TS2322
+  const stripe = new Stripe(stripeSecretKey)
 
   const rawBody = await request.text()
   const sig = request.headers.get('stripe-signature')
@@ -38,15 +37,15 @@ export async function POST(request: NextRequest) {
     const shippingName = session.shipping_details?.name || session.customer_details?.name || 'N/A'
     const shippingAddress = session.shipping_details?.address
       ? [
-          session.shipping_details.address.line1,
-          session.shipping_details.address.line2,
-          session.shipping_details.address.city,
-          session.shipping_details.address.state,
-          session.shipping_details.address.postal_code,
-          session.shipping_details.address.country,
-        ]
-          .filter(Boolean)
-          .join(', ')
+            session.shipping_details.address.line1,
+            session.shipping_details.address.line2,
+            session.shipping_details.address.city,
+            session.shipping_details.address.state,
+            session.shipping_details.address.postal_code,
+            session.shipping_details.address.country,
+          ]
+            .filter(Boolean)
+            .join(', ')
       : 'N/A'
 
     const totalAmount = session.amount_total ? session.amount_total / 100 : 0
