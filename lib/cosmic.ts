@@ -12,6 +12,19 @@ function hasStatus(error: unknown): error is { status: number } {
   return typeof error === 'object' && error !== null && 'status' in error
 }
 
+export function getMetafieldValue(field: unknown): string {
+  if (field === null || field === undefined) return ''
+  if (typeof field === 'string') return field
+  if (typeof field === 'number' || typeof field === 'boolean') return String(field)
+  if (typeof field === 'object' && field !== null && 'value' in field) {
+    return String((field as { value: unknown }).value)
+  }
+  if (typeof field === 'object' && field !== null && 'key' in field) {
+    return String((field as { key: unknown }).key)
+  }
+  return ''
+}
+
 // ---- Products ----
 
 export async function getProducts(): Promise<Product[]> {
@@ -56,6 +69,27 @@ export async function getProductsByCategory(categoryId: string): Promise<Product
       return []
     }
     throw new Error('Failed to fetch products by category')
+  }
+}
+
+export async function getProductsByIds(ids: string[]): Promise<Product[]> {
+  if (ids.length === 0) return []
+  try {
+    const products: Product[] = []
+    for (const id of ids) {
+      try {
+        const response = await cosmic.objects
+          .findOne({ type: 'products', id })
+          .props(['id', 'title', 'slug', 'metadata', 'created_at', 'modified_at'])
+          .depth(1)
+        products.push(response.object as Product)
+      } catch {
+        // Skip products that no longer exist
+      }
+    }
+    return products
+  } catch {
+    return []
   }
 }
 
@@ -121,4 +155,35 @@ export async function getReviewsForProduct(productId: string): Promise<Review[]>
     }
     throw new Error('Failed to fetch reviews for product')
   }
+}
+
+// ---- Orders ----
+
+export interface OrderMetadata {
+  customer_email: string
+  stripe_session_id: string
+  order_items: string
+  total_amount: number
+  order_status: string
+  shipping_name: string
+  shipping_address: string
+}
+
+export async function createOrder(orderData: {
+  title: string
+  metadata: OrderMetadata
+}): Promise<void> {
+  await cosmic.objects.insertOne({
+    title: orderData.title,
+    type: 'orders',
+    metadata: {
+      customer_email: orderData.metadata.customer_email,
+      stripe_session_id: orderData.metadata.stripe_session_id,
+      order_items: orderData.metadata.order_items,
+      total_amount: orderData.metadata.total_amount,
+      order_status: orderData.metadata.order_status,
+      shipping_name: orderData.metadata.shipping_name,
+      shipping_address: orderData.metadata.shipping_address,
+    },
+  })
 }
