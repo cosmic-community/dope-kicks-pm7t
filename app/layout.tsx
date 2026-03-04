@@ -3,6 +3,7 @@ import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import CosmicBadge from '@/components/CosmicBadge'
+import { CartProvider } from '@/context/CartContext'
 
 export const metadata: Metadata = {
   title: 'Dope Kicks — Collectible Sneakers & Accessories',
@@ -37,10 +38,13 @@ export default function RootLayout({
         <script src="/dashboard-console-capture.js" />
       </head>
       <body className="min-h-screen bg-surface-950 text-surface-50 font-sans antialiased">
-        <Header />
-        <main className="min-h-[calc(100vh-160px)]">{children}</main>
-        <Footer />
-        <CosmicBadge bucketSlug={bucketSlug} />
+        {/* Changed: Wrapped entire app in CartProvider */}
+        <CartProvider>
+          <Header />
+          <main className="min-h-[calc(100vh-160px)]">{children}</main>
+          <Footer />
+          <CosmicBadge bucketSlug={bucketSlug} />
+        </CartProvider>
       </body>
     </html>
   )

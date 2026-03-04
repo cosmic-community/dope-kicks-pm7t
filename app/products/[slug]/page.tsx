@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { getProductBySlug, getReviewsForProduct } from '@/lib/cosmic'
 import { getMetafieldValue } from '@/types'
 import ReviewCard from '@/components/ReviewCard'
+import AddToCartButton from '@/components/AddToCartButton'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -102,6 +103,14 @@ export default async function ProductDetailPage({ params }: PageProps) {
             reviews.length
         )
       : 0
+
+  const isOutOfStock =
+    inventoryStatus.toLowerCase().includes('out') ||
+    inventoryStatus.toLowerCase().includes('sold')
+
+  const cartImageUrl = featuredImage?.imgix_url
+    ? `${featuredImage.imgix_url}?w=200&h=200&fit=crop&auto=format,compress`
+    : ''
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
@@ -217,8 +226,22 @@ export default async function ProductDetailPage({ params }: PageProps) {
 
           {/* Inventory Status */}
           {inventoryStatus && (
-            <div className="mb-8">
+            <div className="mb-6">
               <InventoryBadge status={inventoryStatus} />
+            </div>
+          )}
+
+          {/* Changed: Add to Cart Button */}
+          {price !== undefined && price !== null && (
+            <div className="mb-8">
+              <AddToCartButton
+                productId={product.id}
+                slug={product.slug}
+                name={product.metadata?.name || product.title}
+                price={Number(price)}
+                imageUrl={cartImageUrl}
+                disabled={isOutOfStock}
+              />
             </div>
           )}
 
