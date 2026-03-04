@@ -6,8 +6,21 @@ interface ReviewCardProps {
   showProduct?: boolean
 }
 
+// Changed: Extract numeric rating value from select-dropdown object (key/value pair) or plain number
+function getRatingValue(rating: unknown): number {
+  if (rating === null || rating === undefined) return 0
+  if (typeof rating === 'number') return rating
+  if (typeof rating === 'string') return parseInt(rating, 10) || 0
+  if (typeof rating === 'object' && rating !== null) {
+    // select-dropdown returns { key: "5", value: "5" }
+    if ('value' in rating) return parseInt(String((rating as { value: unknown }).value), 10) || 0
+    if ('key' in rating) return parseInt(String((rating as { key: unknown }).key), 10) || 0
+  }
+  return 0
+}
+
 export default function ReviewCard({ review, showProduct = true }: ReviewCardProps) {
-  const rating = review.metadata?.rating || 0
+  const rating = getRatingValue(review.metadata?.rating) // Changed: use helper to extract number
   const reviewerName = review.metadata?.reviewer_name || 'Anonymous'
   const reviewText = review.metadata?.review_text || ''
   const product = review.metadata?.product
@@ -19,7 +32,7 @@ export default function ReviewCard({ review, showProduct = true }: ReviewCardPro
         {Array.from({ length: 5 }).map((_, i) => (
           <svg
             key={i}
-            className={`w-4.5 h-4.5 ${i < rating ? 'text-amber-400' : 'text-surface-700'}`}
+            className={`w-4 h-4 ${i < rating ? 'text-amber-400' : 'text-surface-700'}`}
             fill="currentColor"
             viewBox="0 0 20 20"
           >
